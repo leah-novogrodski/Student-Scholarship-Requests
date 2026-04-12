@@ -1,0 +1,18 @@
+[33mcommit 8f473d97799acd93dda05243e3464e1df3c52317[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: 9ba1553 180ee76
+Author: Leah Novogrodski <l0556736612@gmail.com>
+Date:   Wed Feb 18 17:08:19 2026 +0200
+
+    Merge branch 'main' of https://github.com/leah-novogrodski/student-scholarship-requests
+
+[33mcommit 9ba1553f630a1dbd47f524c08c0a27ad2741a981[m
+Author: Leah Novogrodski <l0556736612@gmail.com>
+Date:   Wed Feb 18 17:00:19 2026 +0200
+
+    Initial commit
+
+[33mcommit 180ee762a2fc718f9c05879bbeb959981af94189[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: leah-novogrodski <l0556736612@gmail.com>
+Date:   Wed Feb 18 16:54:25 2026 +0200
+
+    Initial commit
