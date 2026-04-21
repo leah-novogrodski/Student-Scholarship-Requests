@@ -26,7 +26,7 @@ const inputStyle = {
     },
     
     "&.Mui-error fieldset": {
-      borderColor: "#d32f2f", // אדום לשגיאה
+      borderColor: "#d32f2f", 
     },
   };
 
@@ -54,9 +54,7 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
 
   const [errors, setErrors] = React.useState({});
 
-  /* =========================
-     ✅ ולידציה לשדה בודד
-     ========================= */
+
   const validateField = (field, value) => {
     let error = "";
 
@@ -93,17 +91,12 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
     return !error;
   };
 
-  /* =========================
-     שינוי ערך
-     ========================= */
+
   const handleChange = (field) => (e) => {
     setValues((prev) => ({ ...prev, [field]: e.target.value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  /* =========================
-     שמירה ל־Redux ביציאה
-     ========================= */
   const dispatch = useDispatch();
   useEffect(() => {
     return () => {
@@ -125,7 +118,7 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
           פרטי לימודים
         </Typography>
 
-        {/* מגמה */}
+     
         <TextField
           select
           label="מגמה"
@@ -145,7 +138,7 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
           ))}
         </TextField>
 
-        {/* שכר לימוד */}
+      
         <TextField
           label="שכר לימוד שנתי (₪)"
           fullWidth
@@ -159,7 +152,7 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* שנות לימוד */}
+     
         <TextField
           label="שנות לימוד"
           fullWidth

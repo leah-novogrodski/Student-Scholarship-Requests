@@ -19,7 +19,6 @@ console.log(requests,"requests");
     (r) => r.personalDetails.id === users.currentUser.id
   );
 
-
   if (requestDetails) {
     return (
       <>

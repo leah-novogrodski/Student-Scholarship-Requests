@@ -39,7 +39,7 @@ export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ name: "", id: "", password: "" , email: ""});
   const [idError, setIdError] = useState("");
-  const [loading, setLoading] = useState(false); // הוספת מצב טעינה
+  const [loading, setLoading] = useState(false); 
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export const Register = () => {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const saveUser = async () => {
-    // 1. בדיקת תקינות מקומית
+   
     const errorMsg = getIsraeliIdError(user.id);
     if (errorMsg) {
       setIdError(errorMsg);
@@ -56,8 +56,7 @@ export const Register = () => {
 
     setLoading(true);
     try {
-      // 2. שליחה לשרת (פורט 5000)
-      // שים לב: אנחנו ממפים את user.name ל-fullName ואת user.id ל-email
+
       const response = await axios.post("http://localhost:5000/api/auth/register", {
         fullName: user.name,
         email: user.email, 
@@ -65,7 +64,6 @@ export const Register = () => {
         id: user.id
       });
 
-      // 3. הצלחה - עדכון Redux ומעבר דף
       dispatch(setCurrentUser(response.data.user));
 
       Swal.fire({
@@ -77,7 +75,7 @@ export const Register = () => {
       }).then(() => navigate("/Home"));
 
     } catch (error) {
-      // 4. טיפול בשגיאות (למשל משתמש כבר קיים)
+
       const message = error.response?.data?.message || "קרתה שגיאה ברישום";
       
       Swal.fire({

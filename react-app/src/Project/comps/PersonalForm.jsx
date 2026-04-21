@@ -21,19 +21,19 @@ const inputStyle = {
     },
   
     "&.Mui-focused fieldset": {
-      borderColor: "#ff9800", // כחול כהה בפוקוס
+      borderColor: "#ff9800", 
       borderWidth: 2,
     },
     
     "&.Mui-error fieldset": {
-      borderColor: "#d32f2f", // אדום לשגיאה
+      borderColor: "#d32f2f", 
     },
   }
 
 export const PersonalForm = () => {
-  const token = Cookies.get("token"); // שליפת הטוקן הגולמי
+  const token = Cookies.get("token"); 
 const CurrentUser = token ? jwtDecode(token) : null;
-console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן של המשתמש המפוענח
+console.log("Decoded User from Token:", CurrentUser);
 
   const [personalDetails, setPersonalDetails] = useSessionStorage(
     "PersonalForm",
@@ -48,9 +48,7 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
 
   const [errors, setErrors] = React.useState({});
 
-  /* =========================
-     ✅ ולידציה לשדה בודד
-     ========================= */
+
   const validateField = (field, value) => {
     let error = "";
 
@@ -83,9 +81,7 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
     return !error;
   };
 
-  /* =========================
-     שמירה ל־Redux ביציאה
-     ========================= */
+ 
   const dispatch = useDispatch();
   useEffect(() => {
     return () => {
@@ -102,7 +98,7 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
   return (
     <Card sx={{ width: 350, p: 2 }}>
       <CardContent>
-        {/* שם – קריאה בלבד */}
+      
         <TextField
           label="שם"
           fullWidth
@@ -112,7 +108,7 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* ת.ז – קריאה בלבד */}
+   
         <TextField
           label="תעודת זהות"
           fullWidth
@@ -122,7 +118,7 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* תאריך לידה */}
+    
         <TextField
           label="תאריך לידה"
           type="date"
@@ -142,7 +138,7 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* כתובת */}
+      
         <TextField
           label="כתובת"
           fullWidth
@@ -160,7 +156,6 @@ console.log("Decoded User from Token:", CurrentUser); // בדיקת התוכן �
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* טלפון */}
         <TextField
           label="טלפון"
           fullWidth

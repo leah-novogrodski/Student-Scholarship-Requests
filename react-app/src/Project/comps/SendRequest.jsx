@@ -59,7 +59,7 @@ export const SendRequest = () => {
     }
   };
 
-  // -------- Navigation --------
+
   const handleNext = () => {
     const newActiveStep =
       isLastStep() && !allStepsCompleted()
@@ -109,7 +109,7 @@ export const SendRequest = () => {
       mb: 6,
     }}
   >
-    {/* כותרת */}
+  
     <Typography
       variant="h4"
       sx={{
@@ -122,7 +122,6 @@ export const SendRequest = () => {
       שליחת בקשה
     </Typography>
 
-    {/* עטיפה מאוחדת של הכל */}
     <Paper
       elevation={4}
       sx={{
@@ -132,7 +131,6 @@ export const SendRequest = () => {
         background: "#ffffff",
       }}
     >
-      {/* -------- STEPPER -------- */}
       <Box
         sx={{
           
@@ -181,7 +179,7 @@ export const SendRequest = () => {
         </Stepper>
       </Box>
 
-      {/* -------- CONTENT -------- */}
+   
       <Box 
         sx={{
           
@@ -191,7 +189,6 @@ export const SendRequest = () => {
       >
         <Outlet />
 
-        {/* -------- BUTTONS -------- */}
         <Box sx={{ display: "flex", flexDirection: "row", pt: 3 }}>
           <Button
             variant="outlined"

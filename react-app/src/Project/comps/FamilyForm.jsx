@@ -11,9 +11,7 @@ import useSessionStorage, {
 import { useDispatch } from "react-redux";
 import { setCurrentRequest } from "../redux/RequestSlice";
 
-/* =========================
-   🎨 עיצוב אחיד לשדות קלט
-   ========================= */
+
 const inputStyle = {
  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderColor: "#FF7A00",
@@ -22,12 +20,12 @@ const inputStyle = {
       color: "#FF7A00",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "#ff9800", // כחול כהה בפוקוס
+      borderColor: "#ff9800", 
       borderWidth: 2,
     },
     
     "&.Mui-error fieldset": {
-      borderColor: "#d32f2f", // אדום לשגיאה
+      borderColor: "#d32f2f", 
     },
   }
 
@@ -40,9 +38,7 @@ export const FamilyForm = () => {
 
   const [errors, setErrors] = React.useState({});
 
-  /* =========================
-     ✅ ולידציה לשדה בודד
-     ========================= */
+ 
   const validateField = (field, value) => {
     let error = "";
 
@@ -77,17 +73,13 @@ export const FamilyForm = () => {
     return !error;
   };
 
-  /* =========================
-     שינוי ערך
-     ========================= */
+
   const handleChange = (field) => (e) => {
     setFamilyDetailes((s) => ({ ...s, [field]: e.target.value }));
     setErrors((s) => ({ ...s, [field]: undefined }));
   };
 
-  /* =========================
-     שמירה ל־Redux ביציאה
-     ========================= */
+
   const dispatch = useDispatch();
   useEffect(() => {
     return () => {
@@ -109,7 +101,7 @@ export const FamilyForm = () => {
           פרטי המשפחה
         </Typography>
 
-        {/* שם האב */}
+   
         <TextField
           label="שם האב"
           fullWidth
@@ -124,7 +116,6 @@ export const FamilyForm = () => {
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* שם האם */}
         <TextField
           label="שם האם"
           fullWidth
@@ -139,7 +130,7 @@ export const FamilyForm = () => {
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* הערות */}
+     
         <TextField
           label="הערות נוספות"
           fullWidth

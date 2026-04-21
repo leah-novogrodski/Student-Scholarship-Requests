@@ -21,23 +21,21 @@ export const Apply = () => {
           }}
         >
           <CardContent sx={{ textAlign: "center" }}>
-            {/* כותרת */}
+         
             <Typography
               variant="h4"
               fontWeight={600}
               mb={2}
-              sx={{ color: "#0d47a1" }} // כחול המקובל בכל הדפים
+              sx={{ color: "#0d47a1" }} 
             >
               בקשתך נשלחה בהצלחה!
             </Typography>
 
-            {/* טקסט מידע */}
             <Typography variant="body1" sx={{ mb: 3, color: "#333" }}>
               הבקשה נקלטה במערכת ותטופל בהקדם.  
               ניתן לעקוב אחר סטטוס הבקשה שלך בכל רגע בדף סטטוס המילגה.
             </Typography>
 
-            {/* כפתור מעבר לסטטוס */}
             <Button
               variant="contained"
               size="large"
@@ -56,7 +54,7 @@ export const Apply = () => {
               מעבר לסטטוס הבקשה
             </Button>
 
-            {/* טקסט נוסף */}
+         
             <Typography variant="body2" sx={{ mt: 4, color: "#666" }}>
               תודה שהגשת בקשה דרך המערכת.  
               במידה ויש צורך בעדכון נוסף — ניצור עמך קשר.

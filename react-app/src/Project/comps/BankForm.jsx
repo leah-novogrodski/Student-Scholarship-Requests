@@ -21,7 +21,7 @@ const BANK_OPTIONS = [
 ];
 
 export const BankForm = () => {
-  //אתחול אוביקט חלק הטופס הנוכחי
+
   const [BankDetailes, setBankDetailes] = useSessionStorage("BankForm", {
     ownerName: "",
     bank: "",
@@ -31,7 +31,7 @@ export const BankForm = () => {
 
   const [errors, setErrors] = React.useState({});
 
-  // ולידציה לשדה יחיד
+ 
   const validateField = (field, value) => {
     let error = "";
 
@@ -68,13 +68,13 @@ export const BankForm = () => {
     return !error;
   };
   
-//עדכון הפרטים בSESSION
+
   const handleChange = (field) => (e) => {
     const value = e?.target?.value ?? e;
     setBankDetailes((s) => ({ ...s, [field]: value }));
     setErrors((s) => ({ ...s, [field]: undefined }));
   };
-//שמירה בREDUX בכל פירוק של הקומפוננטה
+
   const dispatch = useDispatch();
   useEffect(() => {
     return () => {
@@ -84,7 +84,7 @@ export const BankForm = () => {
     };
   }, []);
 
-  // סגנון אאוטליין כחול
+  
   const outlineBlue = {
     "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderColor: "#FF7A00",
@@ -101,7 +101,7 @@ export const BankForm = () => {
           פרטי חשבון בנק
         </Typography>
 
-        {/* שם בעל חשבון */}
+       
         <TextField
           label="שם בעל החשבון"
           fullWidth
@@ -114,7 +114,7 @@ export const BankForm = () => {
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* בחירת בנק */}
+      
         <FormControl
           fullWidth
           sx={{ mb: 2, ...outlineBlue }}
@@ -142,7 +142,7 @@ export const BankForm = () => {
           )}
         </FormControl>
 
-        {/* מספר סניף */}
+   
         <TextField
           label="מספר סניף"
           fullWidth
@@ -157,7 +157,6 @@ export const BankForm = () => {
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-        {/* מספר חשבון */}
         <TextField
           label="מספר חשבון"
           fullWidth

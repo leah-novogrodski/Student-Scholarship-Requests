@@ -28,11 +28,11 @@ export const getValidToken = () => {
     const currentTime = Date.now() / 1000;
 
     if (decodedToken.exp < currentTime) {
-      Cookies.remove("token"); // ניקוי אוטומטי
+      Cookies.remove("token"); 
       return null;
     }
 
-    return token; // הטוקן תקין, מחזירים אותו
+    return token; 
   } catch (error) {
     return null;
   }
@@ -79,7 +79,7 @@ export const Nav = () => {
         background: "#0A1A44",
         boxShadow: "0 2px 12px rgba(0,0,0,0.35)",
         fontFamily: "Rubik, sans-serif",
-        borderBottom: "4px solid #FF7A00", // נגיעה כתומה חזקה
+        borderBottom: "4px solid #FF7A00", 
       }}
     >
       <Container maxWidth="xl">
@@ -177,7 +177,6 @@ export const Nav = () => {
             />
           </Box>
 
-          {/* תפריט רוחב */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {[{ to: "Login", label: "כניסה" }].map((item) => (
               <Button
@@ -205,7 +204,6 @@ export const Nav = () => {
               </Button>
             ))}
 
-            {/* שליחת בקשה */}
             <Button
               onClick={() => isLogedIn("/SendRequest/PersonalForm")}
               sx={{
@@ -225,7 +223,7 @@ export const Nav = () => {
               שליחת בקשה
             </Button>
 
-            {/* צפייה בסטטוס */}
+         
             <Button
               onClick={() => isLogedIn("/viewStatus")}
               sx={{
@@ -266,7 +264,6 @@ export const Nav = () => {
             )}
           </Box>
 
-          {/* תפריט משתמש */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title={user.name ? user.name : "Open settings"}>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

@@ -38,7 +38,7 @@ export const Verify = () => {
       sessionStorage.removeItem("sendRequest_activeStep");
       sessionStorage.removeItem("Verify");
 
-      // שולחים את האובייקט החדש ל-Redux
+  
 
       dispatch(addRequest(requestWithDate));
       navigate("/Apply");

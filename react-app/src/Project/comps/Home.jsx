@@ -15,7 +15,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 export const Home = () => {
   return <>
    <Box sx={{ backgroundColor: "#fafafa", minHeight: "100vh" }}>
-      {/* HERO */}
+   
       <Box
         sx={{
           textAlign: "center",
@@ -113,7 +113,7 @@ export const Home = () => {
             </Paper>
           </Grid>
 
-          {/* CARD 3 */}
+       
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
@@ -138,7 +138,7 @@ export const Home = () => {
         </Grid>
       </Container>
 
-      {/* FORM PROCESS */}
+
       <Container sx={{ mt: 10 }}>
         <Typography
           variant="h4"
@@ -196,7 +196,6 @@ export const Home = () => {
         </Grid>
       </Container>
 
-      {/* FAQ */}
       <Container sx={{ mt: 10, mb: 10 }}>
         <Typography
           variant="h4"
@@ -239,7 +238,7 @@ export const Home = () => {
         </Accordion>
       </Container>
 
-      {/* FOOTER */}
+    
       <Box
         sx={{
           backgroundColor: "#333",

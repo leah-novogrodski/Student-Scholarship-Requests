@@ -49,10 +49,10 @@ const isUser = async (e) => {
 
     const { token, user: userData } = response.data;
 
-    // ✅ שמירת הטוקן ב-cookie
+
     Cookies.set("token", token, {
-      expires: 1,          // יום אחד
-      secure: false,       // true בפרודקשן עם HTTPS
+      expires: 1,        
+      secure: false,       
       sameSite: "Strict",
     });
 
@@ -94,7 +94,7 @@ const isUser = async (e) => {
         }}
       >
         <CardContent>
-          {/* ת.ז */}
+       
           <TextField
             onKeyDown={(e) => {
               if (e.key === "Enter") isUser(e);
@@ -111,7 +111,7 @@ const isUser = async (e) => {
             }}
           />
 
-          {/* סיסמא */}
+
           <FormControl
             onKeyDown={(e) => {
               if (e.key === "Enter") isUser(e);
@@ -145,7 +145,7 @@ const isUser = async (e) => {
             />
           </FormControl>
 
-          {/* כפתור כניסה */}
+
           <Button
             variant="contained"
             fullWidth
