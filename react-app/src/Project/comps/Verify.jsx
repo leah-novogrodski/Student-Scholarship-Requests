@@ -43,28 +43,28 @@ export const Verify = () => {
             headers: {
               Authorization: `Bearer ${token}`, // שולחים את הטוקן ב-Headers כפי שהשרת מצפה
             },
-            // אין צורך ב-withCredentials אם את לא משתמשת בעוגיות לשמירת ההתחברות
           },
         );
 
         if (response.data.success) {
-          // ניקוי ה-Session Storage...
-          // הודעת הצלחה ב-Swal...
-          // ניווט לדף הבא (navigate)...
+          sessionStorage.removeItem("BankForm");
+          sessionStorage.removeItem("CourseForm");
+          sessionStorage.removeItem("FamilyForm");
+          sessionStorage.removeItem("PersonalForm");
+          sessionStorage.removeItem("sendRequest_completed");
+          sessionStorage.removeItem("sendRequest_activeStep");
+          sessionStorage.removeItem("Verify");
+          dispatch(addRequest(requestWithDate));
+          navigate("/Apply");
         }
       } catch (error) {
-        // טיפול בשגיאות (Swal.fire עם הודעת השגיאה)
+        Swal.fire({
+          title: "שגיאה בשליחת הבקשה",
+          text: "אירעה שגיאה בשליחת הבקשה. אנא נסה שוב מאוחר יותר.",
+          icon: "error",
+          confirmButtonColor: "#FF7A00",
+        });
       }
-      sessionStorage.removeItem("BankForm");
-      sessionStorage.removeItem("CourseForm");
-      sessionStorage.removeItem("FamilyForm");
-      sessionStorage.removeItem("PersonalForm");
-      sessionStorage.removeItem("sendRequest_completed");
-      sessionStorage.removeItem("sendRequest_activeStep");
-      sessionStorage.removeItem("Verify");
-
-      dispatch(addRequest(requestWithDate));
-      navigate("/Apply");
     } else {
       Swal.fire({
         title: "טופס לא מלא",

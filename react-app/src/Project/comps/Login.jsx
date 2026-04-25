@@ -32,7 +32,10 @@ export const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const users = useSelector((state) => state.user);
-
+  const [personalForm, setPersonalForm] = useSessionStorage("PersonalForm", {});
+  const [familyForm, setFamilyForm] = useSessionStorage("FamilyForm", {});
+  const [courseForm, setCourseForm] = useSessionStorage("CourseForm", {});
+  const [bankForm, setBankForm] = useSessionStorage("BankForm", {});
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
 
   const isUser = async (e) => {
@@ -54,6 +57,28 @@ export const Login = () => {
         secure: false,
         sameSite: "Strict",
       });
+      const requestResponse = await axios.get(
+        "http://localhost:5000/api/requests/my-request",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      const existingData = requestResponse.data.data;
+      if (existingData) {
+        setPersonalForm(existingData.personalDetails);
+        setFamilyForm(existingData.familyDetails);
+        setCourseForm(existingData.courseDetails);
+        setBankForm(existingData.bankDetails);
+
+        // ואולי גם את הסטטוס כדי להציג למשתמש "הבקשה שלך כבר הוגשה"
+        sessionStorage.setItem("applicationStatus", existingData.status);
+      } else {
+        // חובה לנקות את ה-Session Storage אם מדובר במשתמש חדש בלי טיוטה
+        // כדי שלא יישאר מידע בטעות ממשתמש קודם באותו דפדפן
+        sessionStorage.removeItem("requestData");
+        sessionStorage.removeItem("requestStatus");
+      }
 
       dispatch(setCurrentUser(userData));
       navigate("/Home");
