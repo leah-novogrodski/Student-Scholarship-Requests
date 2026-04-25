@@ -34,43 +34,39 @@ export const Login = () => {
   const users = useSelector((state) => state.user);
 
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
- 
-const isUser = async (e) => {
-  e.preventDefault();
 
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/login",
-      {
-        email: user.email,
-        password: user.password,
-      }
-    );
+  const isUser = async (e) => {
+    e.preventDefault();
 
-    const { token, user: userData } = response.data;
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email: user.email,
+          password: user.password,
+        },
+      );
 
+      const { token, user: userData } = response.data;
 
-    Cookies.set("token", token, {
-      expires: 1,        
-      secure: false,       
-      sameSite: "Strict",
-    });
+      Cookies.set("token", token, {
+        expires: 1,
+        secure: false,
+        sameSite: "Strict",
+      });
 
-    dispatch(setCurrentUser(userData));
-    navigate("/Home");
+      dispatch(setCurrentUser(userData));
+      navigate("/Home");
+    } catch (error) {
+      Swal.fire({
+        title: "שגיאה בהתחברות",
+        text: error.response?.data?.message || "בדוק את פרטי הגישה שלך",
+        icon: "error",
+        confirmButtonColor: "#FF7A00",
+      });
+    }
+  };
 
-  } catch (error) {
-    Swal.fire({
-      title: "שגיאה בהתחברות",
-      text: error.response?.data?.message || "בדוק את פרטי הגישה שלך",
-      icon: "error",
-      confirmButtonColor: "#FF7A00",
-    });
-  }
-};
-
-
-  
   return (
     <Box
       sx={{
@@ -94,7 +90,6 @@ const isUser = async (e) => {
         }}
       >
         <CardContent>
-       
           <TextField
             onKeyDown={(e) => {
               if (e.key === "Enter") isUser(e);
@@ -110,7 +105,6 @@ const isUser = async (e) => {
               },
             }}
           />
-
 
           <FormControl
             onKeyDown={(e) => {
@@ -144,7 +138,6 @@ const isUser = async (e) => {
               label="סיסמא"
             />
           </FormControl>
-
 
           <Button
             variant="contained"

@@ -242,7 +242,7 @@ export const Nav = () => {
               צפיה בסטטוס
             </Button>
 
-            {user.id === "123" && (
+            { (
               <Button
                 component={NavLink}
                 to="ViewRequests"

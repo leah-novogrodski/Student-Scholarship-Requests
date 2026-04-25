@@ -1,5 +1,7 @@
 import * as React from "react";
-import useSessionStorage, { getSessionStorageValue } from "../redux/useSessionStorage";
+import useSessionStorage, {
+  getSessionStorageValue,
+} from "../redux/useSessionStorage";
 import {
   Box,
   Stepper,
@@ -10,6 +12,11 @@ import {
   Paper,
 } from "@mui/material";
 import { Outlet, useNavigate } from "react-router";
+import Swal from "sweetalert2";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+axios.defaults.withCredentials = true;
 
 const steps = ["פרטים אישיים", "פרטי משפחה", "השכלה", "פרטי בנק", "אימות"];
 const components = [
@@ -23,11 +30,11 @@ const components = [
 export const SendRequest = () => {
   const [activeStep, setActiveStep] = useSessionStorage(
     "sendRequest_activeStep",
-    0
+    0,
   );
   const [completed, setCompleted] = useSessionStorage(
     "sendRequest_completed",
-    {}
+    {},
   );
 
   const navigate = useNavigate();
@@ -58,7 +65,6 @@ export const SendRequest = () => {
       }
     }
   };
-
 
   const handleNext = () => {
     const newActiveStep =
@@ -95,142 +101,181 @@ export const SendRequest = () => {
     setActiveStep(next);
     navigate(`/SendRequest/${components[next]}`);
   };
+  const saveDraft = async () => {
+    try{
+      const personalDetails = getSessionStorageValue("PersonalForm");
+      const familyDetails = getSessionStorageValue("FamilyForm");
+      const courseDetails = getSessionStorageValue("CourseForm");
+      const bankDetails = getSessionStorageValue("BankForm");
+      const token = Cookies.get("token"); // קבלת הטוקן מה-Cookies
+    const response = await axios.post(
+      "http://localhost:5000/api/requests/",
 
-  React.useEffect(() => {
+      {
+        personalDetails,
+        familyDetails,
+        courseDetails,
+        bankDetails,
+       isVerified: false,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+
+    if (response.data.success) {
+      Swal.fire({
+        title: "טיוטה נשמרה בהצלחה",
+        icon: "success",
+        confirmButtonColor: "#FF7A00",
+      });
+    } 
    
-  }, [completed, navigate]);
+    } catch (error) {
+      Swal.fire({
+        title: "שגיאה בשמירת הטיוטה",
+        text: error.response?.data?.message || "קרתה שגיאה בשמירת הטיוטה",
+        icon: "error",
+      });
+    }
+    // כאן תוכל להוסיף לוגיקה לשמירת הטיוטה, למשל לשלוח את הנתונים לשרת או לשמור ב-localStorage
+    
+  }
+
+  React.useEffect(() => {}, [completed, navigate]);
 
   return (
-     <Box
-    sx={{
-      width: "75%",
-      margin: "auto",
-      mt: 4,
-      mb: 6,
-    }}
-  >
-  
-    <Typography
-      variant="h4"
+    <Box
       sx={{
-        textAlign: "center",
-        fontWeight: 700,
-        color: "#1f2d5c",
-        mb: 4,
+        width: "75%",
+        margin: "auto",
+        mt: 4,
+        mb: 6,
       }}
     >
-      שליחת בקשה
-    </Typography>
-
-    <Paper
-      elevation={4}
-      sx={{
-        borderRadius: 4,
-        overflow: "hidden",
-        border: "1px solid #d7ddf0",
-        background: "#ffffff",
-      }}
-    >
-      <Box
+      <Typography
+        variant="h4"
         sx={{
-          
-          background: "#f7f8ff",
-          borderBottom: "1px solid #e3e6f3",
-          p: 3,
+          textAlign: "center",
+          fontWeight: 700,
+          color: "#1f2d5c",
+          mb: 4,
         }}
       >
-        <Stepper
-    
-          nonLinear
-          activeStep={activeStep}
-          alternativeLabel
-          sx={{
-            "& .MuiStepLabel-label": {
-              fontWeight: 500,
-              color: "#2e3b78",
-            },
-            "& .MuiStepLabel-label.Mui-active": {
-              color: "#1f2d5c",
-              fontWeight: 700,
-            },
-            "& .MuiStepLabel-label.Mui-completed": {
-              color: "#e0672b",
-              fontWeight: 700,
-            },
-            "& .MuiStepIcon-root": {
-              color: "#b9c4e5",
-            },
-            "& .MuiStepIcon-root.Mui-active": {
-              color: "#1f2d5c",
-            },
-            "& .MuiStepIcon-root.Mui-completed": {
-              color: "#e0672b",
-            },
-            dir: "rtl",
-          }}
-        >
-          {steps.map((label, index) => (
-            <Step key={label} completed={completed[index]}>
-              <StepButton onClick={handleStep(index)}>
-                {label}
-              </StepButton>
-            </Step>
-          ))}
-        </Stepper>
-      </Box>
+        שליחת בקשה
+      </Typography>
 
-   
-      <Box 
+      <Paper
+        elevation={4}
         sx={{
-          
-          p: 4,
+          borderRadius: 4,
+          overflow: "hidden",
+          border: "1px solid #d7ddf0",
           background: "#ffffff",
         }}
       >
-        <Outlet />
-
-        <Box sx={{ display: "flex", flexDirection: "row", pt: 3 }}>
-          <Button
-            variant="outlined"
-            color="inherit"
-            disabled={activeStep === 0}
-            onClick={handleBack}
+        <Box
+          sx={{
+            background: "#f7f8ff",
+            borderBottom: "1px solid #e3e6f3",
+            p: 3,
+          }}
+        >
+          <Stepper
+            nonLinear
+            activeStep={activeStep}
+            alternativeLabel
             sx={{
-              mr: 1,
-              borderRadius: 2,
-              borderColor: "#b5c0e6",
-              color: "#1f2d5c",
-              fontWeight: 600,
-              "&:hover": {
-                borderColor: "#1f2d5c",
+              "& .MuiStepLabel-label": {
+                fontWeight: 500,
+                color: "#2e3b78",
               },
+              "& .MuiStepLabel-label.Mui-active": {
+                color: "#1f2d5c",
+                fontWeight: 700,
+              },
+              "& .MuiStepLabel-label.Mui-completed": {
+                color: "#e0672b",
+                fontWeight: 700,
+              },
+              "& .MuiStepIcon-root": {
+                color: "#b9c4e5",
+              },
+              "& .MuiStepIcon-root.Mui-active": {
+                color: "#1f2d5c",
+              },
+              "& .MuiStepIcon-root.Mui-completed": {
+                color: "#e0672b",
+              },
+              dir: "rtl",
             }}
           >
-            חזרה
-          </Button>
-
-          <Box sx={{ flex: "1 1 auto" }} />
-
-          <Button
-            variant="contained"
-            onClick={handleNext}
-            disabled={activeStep === steps.length - 1}
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              fontWeight: 700,
-              background: "#1f2d5c",
-              "&:hover": {
-                background: "#162349",
-                
-              },
-            }}
-          >
-            הבא
-          </Button>
+            {steps.map((label, index) => (
+              <Step key={label} completed={completed[index]}>
+                <StepButton onClick={handleStep(index)}>{label}</StepButton>
+              </Step>
+            ))}
+          </Stepper>
         </Box>
-      </Box>
-    </Paper>
-  </Box>
+
+        <Box
+          sx={{
+            p: 4,
+            background: "#ffffff",
+          }}
+        >
+          <Outlet />
+
+          <Box sx={{ display: "flex", flexDirection: "row", pt: 3 }}>
+            <Button
+              variant="outlined"
+              color="inherit"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{
+                mr: 1,
+                borderRadius: 2,
+                borderColor: "#b5c0e6",
+                color: "#1f2d5c",
+                fontWeight: 600,
+                "&:hover": {
+                  borderColor: "#1f2d5c",
+                },
+              }}
+            >
+              חזרה
+            </Button>
+
+            <Box sx={{ flex: "1 1 auto" }} />
+              <Button
+          variant="text"
+          sx={{ color: "#1f2d5c", fontWeight: 600, mx: 2 }}
+          onClick={saveDraft}
+        >
+          שמור כטיוטה
+        </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              disabled={activeStep === steps.length - 1}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                fontWeight: 700,
+                background: "#1f2d5c",
+                "&:hover": {
+                  background: "#162349",
+                },
+              }}
+            >
+              הבא
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Box>
   );
 };

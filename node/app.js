@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import authRoutes from './api/routers/auth-routes.js';
+import requestRoutes from './api/routers/requestRoutes.js';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser'; // 1. ייבוא
 const app = express();
 
 dotenv.config();
@@ -24,6 +26,7 @@ mongoose.connect("mongodb://localhost:27017/your_db_name")
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/requests', requestRoutes);
 
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);

@@ -45,17 +45,21 @@ export const register = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      id
+      id:id
     });
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { id: user.id, email: user.email ,name: user.fullName},
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      },
+    );
 
     await user.save();
     res.status(201).json({
       message: "המשתמש נרשם בהצלחה",
       token,
-      user: { id: user._id, email: user.email },
+      user: { id: user.id, name: user.fullName},
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -33,7 +33,7 @@ const inputStyle = {
 export const PersonalForm = () => {
   const token = Cookies.get("token"); 
 const CurrentUser = token ? jwtDecode(token) : null;
-console.log("Decoded User from Token:", CurrentUser);
+
 
   const [personalDetails, setPersonalDetails] = useSessionStorage(
     "PersonalForm",

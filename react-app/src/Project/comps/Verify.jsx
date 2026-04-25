@@ -13,6 +13,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { addRequest } from "../redux/RequestSlice";
 import Swal from "sweetalert2";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+axios.defaults.withCredentials = true;
 
 export const Verify = () => {
   const navigate = useNavigate();
@@ -20,9 +24,9 @@ export const Verify = () => {
   const currentRequest = useSelector((state) => state.request);
 
   const [checked, setChecked] = useSessionStorage("Verify", false);
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const allStepsCompleted = Object.values(isComplete).every(
-      (val) => val === true
+      (val) => val === true,
     );
 
     if (allStepsCompleted) {
@@ -30,6 +34,27 @@ export const Verify = () => {
         ...currentRequest.currentRequest,
         date: new Date().toLocaleDateString("he-IL"),
       };
+      try {
+        const token = Cookies.get("token"); // קבלת הטוקן מה-Cookies
+        const response = await axios.post(
+          "http://localhost:5000/api/requests",
+          requestWithDate,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // שולחים את הטוקן ב-Headers כפי שהשרת מצפה
+            },
+            // אין צורך ב-withCredentials אם את לא משתמשת בעוגיות לשמירת ההתחברות
+          },
+        );
+
+        if (response.data.success) {
+          // ניקוי ה-Session Storage...
+          // הודעת הצלחה ב-Swal...
+          // ניווט לדף הבא (navigate)...
+        }
+      } catch (error) {
+        // טיפול בשגיאות (Swal.fire עם הודעת השגיאה)
+      }
       sessionStorage.removeItem("BankForm");
       sessionStorage.removeItem("CourseForm");
       sessionStorage.removeItem("FamilyForm");
@@ -37,8 +62,6 @@ export const Verify = () => {
       sessionStorage.removeItem("sendRequest_completed");
       sessionStorage.removeItem("sendRequest_activeStep");
       sessionStorage.removeItem("Verify");
-
-  
 
       dispatch(addRequest(requestWithDate));
       navigate("/Apply");
@@ -59,7 +82,7 @@ export const Verify = () => {
   console.log("data in Verify:", data);
   const [isComplete, setIscomplete] = useSessionStorage(
     "sendRequest_completed",
-    {}
+    {},
   );
 
   console.log("isComplete in Verify:", isComplete);
