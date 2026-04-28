@@ -8,17 +8,41 @@ import {
   Grid,
   Button,
 } from "@mui/material";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export const ViewStatus = () => {
   const users = useSelector((state) => state.user);
   const requests = useSelector((state) => state.request);
-console.log(requests,"requests");
+  console.log(requests, "requests");
+  const [requestDetails, setRequestDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const token = Cookies.get("token");
+  useEffect(() => {
+    const fetchStatus = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-  const requestDetails = [...requests.list].reverse().find(
-    (r) => r.personalDetails.id === users.currentUser.id
-  );
+      try {
+        const response = await axios.get("http://localhost:5000/api/requests/my-status", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRequestDetails(response.data);
+      } catch (error) {
+        console.error("Error fetching status:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchStatus();
+  }, [token]);
   if (requestDetails) {
     return (
       <>
@@ -79,8 +103,6 @@ console.log(requests,"requests");
               </Grid>
 
               <Divider sx={{ my: 3 }} />
-
-             
             </CardContent>
           </Card>
         </Box>
@@ -109,3 +131,4 @@ console.log(requests,"requests");
     );
   }
 };
+

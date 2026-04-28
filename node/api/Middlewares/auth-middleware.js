@@ -15,5 +15,4 @@ export const auth = (req, res, next) => {
   } catch (error) {
     return res.status(403).json({ success: false, message: "האסימון אינו תקין או שפג תוקפו." });
   }
-  // מחקנו את ה-next() המיותר שהיה כאן בסוף
 };

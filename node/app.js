@@ -5,7 +5,9 @@ import authRoutes from './api/routers/auth-routes.js';
 import requestRoutes from './api/routers/requestRoutes.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser'; // 1. ייבוא
-import { getMyRequest } from './api/controllers/request.js'; // ייבוא הפונקציה לקבלת הבקשה של המשתמש
+import { getMyRequest } from './api/controllers/request.js';
+import { getRequestByLoggedUser } from './api/controllers/request.js';
+// ייבוא הפונקציה לקבלת הבקשה של המשתמש
 const app = express();
 
 dotenv.config();
@@ -29,6 +31,7 @@ mongoose.connect("mongodb://localhost:27017/your_db_name")
 app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/requests/my-request', getMyRequest);
+app.use('/api/requests/my-status', getRequestByLoggedUser);
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);
 });

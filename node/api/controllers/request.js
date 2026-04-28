@@ -1,5 +1,7 @@
 import Request from '../models/RequestSchema.js';
 import User from '../models/user-model.js';
+import jwt from 'jsonwebtoken';
+
 const isObjectComplete = (obj) => {
   if (!obj) return false;
   // עובר על כל הערכים באובייקט ובודק שאין ערך ריק
@@ -106,5 +108,26 @@ console.log("User ID from token:", userIdFromToken); // הוספנו לוג כד
       message: "שגיאה בשליפת הנתונים",
       error: error.message
     });
+  }
+};
+
+export const getRequestByLoggedUser = async (req, res) => {
+  try {
+    const userIdFromToken = req.user.id;
+    console.log("User ID from token in getRequestByLoggedUser:", req.user.id); // לוג נוסף לבדיקה
+    const user = await User.findOne({ id: userIdFromToken }); 
+    if (!user) {
+      return res.status(404).json({ message: "משתמש לא נמצא במערכת" });
+    }
+
+    const request = await Request.findOne({ userId: user._id }).sort({ createdAt: -1 });
+
+    if (!request) {
+      return res.status(404).json({ success: false, message: "לא נמצאה בקשה" });
+    }
+
+    res.status(200).json(request);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "שגיאת שרת", error: error.message });
   }
 };
