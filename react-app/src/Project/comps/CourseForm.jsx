@@ -12,25 +12,21 @@ import useSessionStorage, {
 import { useDispatch } from "react-redux";
 import { setCurrentRequest } from "../redux/RequestSlice";
 
-
 const inputStyle = {
- "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: "#FF7A00",
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-      color: "#FF7A00",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#ff9800",
-      borderWidth: 2,
-    },
-    
-    "&.Mui-error fieldset": {
-      borderColor: "#d32f2f", 
-    },
-  };
-
-
+  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#FF7A00",
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: "#FF7A00",
+  },
+  "&.Mui-focused fieldset": {
+    borderColor: "#ff9800",
+    borderWidth: 2,
+  },
+  "&.Mui-error fieldset": {
+    borderColor: "#d32f2f",
+  },
+};
 
 const MAJORS = [
   "מדעי המחשב",
@@ -48,12 +44,12 @@ const MAJORS = [
 export const CourseForm = ({ onSubmit, onCancel }) => {
   const [values, setValues] = useSessionStorage("CourseForm", {
     major: "",
-    tuition: "",
-    years: "",
+    instituteName: "",
+    yearsOfStudy: "",
+    annualTuition: "",
   });
 
   const [errors, setErrors] = React.useState({});
-
 
   const validateField = (field, value) => {
     let error = "";
@@ -63,7 +59,15 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
         if (!value) error = "נא לבחור מגמה";
         break;
 
-      case "tuition":
+      case "instituteName":
+        if (!value.trim()) {
+          error = "נא להזין שם מוסד";
+        } else if (value.trim().length < 2) {
+          error = "שם מוסד חייב להכיל לפחות 2 תווים";
+        }
+        break;
+
+      case "annualTuition":
         if (!value) {
           error = "נא להזין שכר לימוד";
         } else if (!/^\d+$/.test(value)) {
@@ -73,7 +77,7 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
         }
         break;
 
-      case "years":
+      case "yearsOfStudy":
         if (!value) {
           error = "נא להזין שנות לימוד";
         } else if (!/^\d+$/.test(value)) {
@@ -91,7 +95,6 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
     return !error;
   };
 
-
   const handleChange = (field) => (e) => {
     setValues((prev) => ({ ...prev, [field]: e.target.value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -103,22 +106,20 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
       const currentValues = getSessionStorageValue("CourseForm");
       dispatch(
         setCurrentRequest({
-          key: "courseDetailes",
+          key: "courseDetails",
           value: currentValues,
         })
       );
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   return (
-    <Card sx={{ width: 350, p: 2, direction: "rtl" }}>
+    <Card sx={{ width: "100%", maxWidth: 500, p: 2, direction: "rtl" }}>
       <CardContent>
-        <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+        <Typography variant="h6" sx={{ mb: 3, textAlign: "center" }}>
           פרטי לימודים
         </Typography>
 
-     
         <TextField
           select
           label="מגמה"
@@ -138,30 +139,40 @@ export const CourseForm = ({ onSubmit, onCancel }) => {
           ))}
         </TextField>
 
-      
         <TextField
-          label="שכר לימוד שנתי (₪)"
+          label="שם מוסד הלימודים"
           fullWidth
           sx={{ mb: 2, ...inputStyle }}
-          value={values.tuition}
-          onChange={handleChange("tuition")}
-          onBlur={() => validateField("tuition", values.tuition)}
-          error={!!errors.tuition}
-          helperText={errors.tuition}
-          inputMode="numeric"
+          value={values.instituteName}
+          onChange={handleChange("instituteName")}
+          onBlur={() => validateField("instituteName", values.instituteName)}
+          error={!!errors.instituteName}
+          helperText={errors.instituteName}
           InputProps={{ style: { textAlign: "right" } }}
         />
 
-     
         <TextField
           label="שנות לימוד"
           fullWidth
           sx={{ mb: 2, ...inputStyle }}
-          value={values.years}
-          onChange={handleChange("years")}
-          onBlur={() => validateField("years", values.years)}
-          error={!!errors.years}
-          helperText={errors.years}
+          value={values.yearsOfStudy}
+          onChange={handleChange("yearsOfStudy")}
+          onBlur={() => validateField("yearsOfStudy", values.yearsOfStudy)}
+          error={!!errors.yearsOfStudy}
+          helperText={errors.yearsOfStudy}
+          inputMode="numeric"
+          InputProps={{ style: { textAlign: "right" } }}
+        />
+
+        <TextField
+          label="שכר לימוד שנתי (₪)"
+          fullWidth
+          sx={{ mb: 2, ...inputStyle }}
+          value={values.annualTuition}
+          onChange={handleChange("annualTuition")}
+          onBlur={() => validateField("annualTuition", values.annualTuition)}
+          error={!!errors.annualTuition}
+          helperText={errors.annualTuition}
           inputMode="numeric"
           InputProps={{ style: { textAlign: "right" } }}
         />

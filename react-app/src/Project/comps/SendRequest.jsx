@@ -18,12 +18,13 @@ import Cookies from "js-cookie";
 
 axios.defaults.withCredentials = true;
 
-const steps = ["פרטים אישיים", "פרטי משפחה", "השכלה", "פרטי בנק", "אימות"];
+const steps = ["פרטים אישיים", "פרטי משפחה", "השכלה", "פרטי בנק", "העלאת קבצים", "אימות"];
 const components = [
   "PersonalForm",
   "FamilyForm",
   "CourseForm",
   "BankForm",
+  "FileUploadForm",
   "Verify",
 ];
 
@@ -102,37 +103,45 @@ export const SendRequest = () => {
     navigate(`/SendRequest/${components[next]}`);
   };
   const saveDraft = async () => {
-    try{
+    try {
       const personalDetails = getSessionStorageValue("PersonalForm");
       const familyDetails = getSessionStorageValue("FamilyForm");
       const courseDetails = getSessionStorageValue("CourseForm");
       const bankDetails = getSessionStorageValue("BankForm");
-      const token = Cookies.get("token"); // קבלת הטוקן מה-Cookies
-    const response = await axios.post(
-      "http://localhost:5000/api/requests/",
+      const fileUploads = getSessionStorageValue("FileUploadForm");
+      const token = Cookies.get("token");
 
-      {
-        personalDetails,
-        familyDetails,
-        courseDetails,
-        bankDetails,
-       isVerified: false,
-      },
-      {
+      // יצירת FormData לשליחת קבצים
+      const formData = new FormData();
+      formData.append("personalDetails", JSON.stringify(personalDetails));
+      formData.append("familyDetails", JSON.stringify(familyDetails));
+      formData.append("courseDetails", JSON.stringify(courseDetails));
+      formData.append("bankDetails", JSON.stringify(bankDetails));
+      formData.append("isVerified", false);
+
+      // הוספת קבצים ל-FormData
+      Object.keys(fileUploads || {}).forEach((key) => {
+        if (fileUploads[key] && fileUploads[key].fileData) {
+          // שליחת הנתונים כ-Base64 או כ-Blob
+          formData.append(`files_${key}`, fileUploads[key].fileData);
+          formData.append(`fileNames_${key}`, fileUploads[key].fileName);
+        }
+      });
+
+      const response = await axios.post("http://localhost:5000/api/requests/", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-        }
-      }
-    );
-
-    if (response.data.success) {
-      Swal.fire({
-        title: "טיוטה נשמרה בהצלחה",
-        icon: "success",
-        confirmButtonColor: "#FF7A00",
+          "Content-Type": "multipart/form-data",
+        },
       });
-    } 
-   
+
+      if (response.data.success) {
+        Swal.fire({
+          title: "טיוטה נשמרה בהצלחה",
+          icon: "success",
+          confirmButtonColor: "#FF7A00",
+        });
+      }
     } catch (error) {
       Swal.fire({
         title: "שגיאה בשמירת הטיוטה",
@@ -140,9 +149,7 @@ export const SendRequest = () => {
         icon: "error",
       });
     }
-    // כאן תוכל להוסיף לוגיקה לשמירת הטיוטה, למשל לשלוח את הנתונים לשרת או לשמור ב-localStorage
-    
-  }
+  };
 
   React.useEffect(() => {}, [completed, navigate]);
 

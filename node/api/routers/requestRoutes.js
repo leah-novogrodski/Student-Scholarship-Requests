@@ -5,8 +5,9 @@ import { createRequest } from '../controllers/request.js';
 import { auth } from '../Middlewares/auth-middleware.js';
 import { getMyRequest } from '../controllers/request.js';
 import { getRequestByLoggedUser } from '../controllers/request.js';
+import { uploadMultiple } from '../Middlewares/upload-middleware.js';
 
-router.post('/', auth, createRequest);
+router.post('/', auth, uploadMultiple, createRequest);
 router.get('/my-request', auth, getMyRequest);
 router.get('/my-status', auth, getRequestByLoggedUser);
 

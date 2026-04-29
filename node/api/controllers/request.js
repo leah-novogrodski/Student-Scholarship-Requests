@@ -14,29 +14,57 @@ const isObjectComplete = (obj) => {
 
 export const createRequest = async (req, res) => {
   try {
-    const { personalDetails, familyDetails, courseDetails, bankDetails, isVerified } = req.body;
-   if (isVerified) {
-      const isDataMissing = 
+    const personalDetails = JSON.parse(req.body.personalDetails || '{}');
+    const familyDetails = JSON.parse(req.body.familyDetails || '{}');
+    const courseDetails = JSON.parse(req.body.courseDetails || '{}');
+    const bankDetails = JSON.parse(req.body.bankDetails || '{}');
+    const { isVerified } = req.body;
+
+    // טיפול בקבצים שהועלו
+    const fileUploads = {};
+    const fileMapping = {
+      'idCopy': 'files_idCopy',
+      'studentAppendix': 'files_studentAppendix',
+      'fatherAppendix': 'files_fatherAppendix',
+      'motherAppendix': 'files_motherAppendix',
+      'studyApproval': 'files_studyApproval',
+      'bankAccountApproval': 'files_bankAccountApproval'
+    };
+
+    // קריאה לקבצים מ-req.files (multer)
+    if (req.files) {
+      Object.keys(fileMapping).forEach(fileKey => {
+        const multerField = fileMapping[fileKey];
+        if (req.files[multerField] && req.files[multerField][0]) {
+          fileUploads[fileKey] = req.files[multerField][0].path;
+        }
+      });
+    }
+
+    if (isVerified === 'true' || isVerified === true) {
+      const isDataMissing =
         !isObjectComplete(personalDetails) ||
         !isObjectComplete(familyDetails) ||
         !isObjectComplete(courseDetails) ||
-        !isObjectComplete(bankDetails);
+        !isObjectComplete(bankDetails) ||
+        Object.keys(fileUploads).length === 0;
 
       if (isDataMissing) {
         return res.status(400).json({
           success: false,
-          message: "לא ניתן להגיש את הבקשה. חסרים פרטים באחד או יותר מהשלבים."
+          message: "לא ניתן להגיש את הבקשה. חסרים פרטים באחד או יותר מהשלבים.",
         });
       }
     }
-    const userIdFromToken = req.user.id; 
 
-    const user = await User.findOne({ id: userIdFromToken }); 
+    const userIdFromToken = req.user.id;
+
+    const user = await User.findOne({ id: userIdFromToken });
     if (!user) {
       return res.status(404).json({ message: "משתמש לא נמצא במערכת" });
     }
 
-    // 2. עדכון או יצירה (Upsert)
+    // עדכון או יצירה (Upsert)
     const updatedRequest = await Request.findOneAndUpdate(
       { userId: user._id },
       {
@@ -45,29 +73,31 @@ export const createRequest = async (req, res) => {
         familyDetails,
         courseDetails,
         bankDetails,
+        fileUploads,
         isVerified,
         status: isVerified ? 'submitted' : 'draft',
-        submissionDate: isVerified ? new Date() : null
+        submissionDate: isVerified ? new Date() : null,
       },
-      { 
-        new: true,      
-        upsert: true,  
-        runValidators: true 
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
       }
     );
 
     res.status(200).json({
       success: true,
-      message: isVerified ? "הבקשה הוגשה בהצלחה!" : "הטיוטה נשמרה בהצלחה!",
-      data: updatedRequest
+      message: isVerified
+        ? "הבקשה הוגשה בהצלחה!"
+        : "הטיוטה נשמרה בהצלחה!",
+      data: updatedRequest,
     });
-
   } catch (error) {
     console.error("Error saving request:", error);
     res.status(500).json({
       success: false,
       message: "שגיאה בתהליך השמירה",
-      error: error.message
+      error: error.message,
     });
   }
 };

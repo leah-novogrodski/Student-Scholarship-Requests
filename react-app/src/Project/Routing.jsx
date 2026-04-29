@@ -7,12 +7,10 @@ import { ViewStatus } from "./comps/ViewStatus";
 import { PersonalForm } from "./comps/PersonalForm";
 import { FamilyForm } from "./comps/FamilyForm";
 import { BankForm } from "./comps/BankForm";
-
 import { CourseForm } from "./comps/CourseForm";
+import { FileUploadForm } from "./comps/FileUploadForm";
 import { Verify } from "./comps/Verify";
-
 import { Apply } from "./comps/Apply";
-
 import { Register } from "./comps/Register";
 import { ViewRequests } from "./comps/ViewRequests";
 
@@ -21,11 +19,11 @@ export const Routing = () => {
     <>
       <Nav></Nav>
       <Routes>
-                <Route path="" element={<Home></Home>}></Route>
+        <Route path="" element={<Home></Home>}></Route>
         <Route path="Register" element={<Register></Register>}></Route>
         <Route path="Home" element={<Home></Home>}></Route>
         <Route path="Login" element={<Login></Login>}></Route>
-        <Route path="SendRequest"  element={<SendRequest></SendRequest>}>
+        <Route path="SendRequest" element={<SendRequest></SendRequest>}>
           <Route
             path="PersonalForm"
             element={<PersonalForm></PersonalForm>}
@@ -34,6 +32,7 @@ export const Routing = () => {
           <Route path="FamilyForm" element={<FamilyForm></FamilyForm>}></Route>
           <Route path="CourseForm" element={<CourseForm></CourseForm>}></Route>
           <Route path="BankForm" element={<BankForm></BankForm>}></Route>
+          <Route path="FileUploadForm" element={<FileUploadForm></FileUploadForm>}></Route>
           <Route path="Verify" element={<Verify></Verify>}></Route>
         </Route>
         <Route path="ViewStatus" element={<ViewStatus></ViewStatus>}></Route>
