@@ -27,7 +27,14 @@ const components = [
   "FileUploadForm",
   "Verify",
 ];
-
+const REQUIRED_FIELDS = {
+  PersonalForm:[ "birthDate", "city", "address", "mobilePhone", "homePhone"],
+  FamilyForm:["fatherId","fatherLastName","fatherFirstName","motherId","motherLastName","motherFirstName","siblingsBelowAge18","siblingsAboveAge21WithMultipleChildren"],
+  CourseForm:["major","instituteName","yearsOfStudy","annualTuition"],
+  BankForm:["accountOwnerId","bankName","branchNumber","accountNumber"],
+  FileUploadForm:["idCopy","studentAppendix","fatherAppendix","motherAppendix","studyApproval","bankAccountApproval"],
+  "Verify":[],
+}
 export const SendRequest = () => {
   const [activeStep, setActiveStep] = useSessionStorage(
     "sendRequest_activeStep",
@@ -44,28 +51,29 @@ export const SendRequest = () => {
   const completedSteps = () => Object.keys(completed).length;
   const isLastStep = () => activeStep === totalSteps() - 1;
   const allStepsCompleted = () => completedSteps() === totalSteps();
+const updateCompleted = () => {
+  const componentName = components[activeStep];
+  const form = getSessionStorageValue(componentName);
+  const requiredFields = REQUIRED_FIELDS[componentName] || [];
 
-  const updateCompleted = () => {
-    const form = getSessionStorageValue(components[activeStep]);
-    if (form !== undefined && form !== null) {
-      let allFilled = true;
-      for (const key in form) {
-        if (
-          form[key] === "" ||
-          form[key] === null ||
-          form[key] === undefined ||
-          (Array.isArray(form[key]) && form[key].length === 0)
-        ) {
-          allFilled = false;
-        }
-      }
-      if (allFilled) {
-        setCompleted({ ...completed, [activeStep]: true });
-      } else {
-        setCompleted({ ...completed, [activeStep]: false });
-      }
-    }
-  };
+  if (!form) {
+    setCompleted({ ...completed, [activeStep]: false });
+    return;
+  }
+
+  // בדיקה האם כל השדה שנדרש קיים ומלא
+  const allFilled = requiredFields.every((key) => {
+    const value = form[key];
+    return (
+      value !== "" &&
+      value !== null &&
+      value !== undefined &&
+      !(Array.isArray(value) && value.length === 0)
+    );
+  });
+
+  setCompleted((prev) => ({ ...prev, [activeStep]: allFilled }));
+};
 
   const handleNext = () => {
     const newActiveStep =

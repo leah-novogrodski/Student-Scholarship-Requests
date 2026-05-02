@@ -53,6 +53,7 @@ export const PersonalForm = () => {
       mobilePhone: "",
       homePhone: "",
     }
+
   );
 
   const [errors, setErrors] = React.useState({});
@@ -126,7 +127,6 @@ export const PersonalForm = () => {
           פרטים אישיים
         </Typography>
 
-        {/* שדות שאינם ניתנים לשינוי */}
         <Box sx={{ mb: 3, p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
           <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: "bold" }}>
             פרטים מהמערכת (אינם ניתנים לשינוי):
@@ -135,7 +135,7 @@ export const PersonalForm = () => {
           <TextField
             label="תעודת זהות"
             fullWidth
-            value={personalDetails.id}
+            value={CurrentUser?.id}
             disabled
             sx={{ mb: 2, ...inputStyle, ...disabledStyle }}
             InputProps={{ style: { textAlign: "right" } }}
@@ -144,7 +144,7 @@ export const PersonalForm = () => {
           <TextField
             label="שם פרטי"
             fullWidth
-            value={personalDetails.firstName}
+            value={CurrentUser?.firstName}
             disabled
             sx={{ mb: 2, ...inputStyle, ...disabledStyle }}
             InputProps={{ style: { textAlign: "right" } }}
@@ -153,7 +153,7 @@ export const PersonalForm = () => {
           <TextField
             label="שם משפחה"
             fullWidth
-            value={personalDetails.lastName}
+            value={CurrentUser?.lastName}
             disabled
             sx={{ mb: 2, ...inputStyle, ...disabledStyle }}
             InputProps={{ style: { textAlign: "right" } }}
