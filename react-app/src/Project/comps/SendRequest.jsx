@@ -18,7 +18,14 @@ import Cookies from "js-cookie";
 
 axios.defaults.withCredentials = true;
 
-const steps = ["פרטים אישיים", "פרטי משפחה", "השכלה", "פרטי בנק", "העלאת קבצים", "אימות"];
+const steps = [
+  "פרטים אישיים",
+  "פרטי משפחה",
+  "השכלה",
+  "פרטי בנק",
+  "העלאת קבצים",
+  "אימות",
+];
 const components = [
   "PersonalForm",
   "FamilyForm",
@@ -28,13 +35,29 @@ const components = [
   "Verify",
 ];
 const REQUIRED_FIELDS = {
-  PersonalForm:[ "birthDate", "city", "address", "mobilePhone", "homePhone"],
-  FamilyForm:["fatherId","fatherLastName","fatherFirstName","motherId","motherLastName","motherFirstName","siblingsBelowAge18","siblingsAboveAge21WithMultipleChildren"],
-  CourseForm:["major","instituteName","yearsOfStudy","annualTuition"],
-  BankForm:["accountOwnerId","bankName","branchNumber","accountNumber"],
-  FileUploadForm:["idCopy","studentAppendix","fatherAppendix","motherAppendix","studyApproval","bankAccountApproval"],
-  "Verify":[],
-}
+  PersonalForm: ["birthDate", "city", "address", "mobilePhone", "homePhone"],
+  FamilyForm: [
+    "fatherId",
+    "fatherLastName",
+    "fatherFirstName",
+    "motherId",
+    "motherLastName",
+    "motherFirstName",
+    "siblingsBelowAge18",
+    "siblingsAboveAge21WithMultipleChildren",
+  ],
+  CourseForm: ["major", "instituteName", "yearsOfStudy", "annualTuition"],
+  BankForm: ["accountOwnerId", "bankName", "branchNumber", "accountNumber"],
+  FileUploadForm: [
+    "idCopy",
+    "studentAppendix",
+    "fatherAppendix",
+    "motherAppendix",
+    "studyApproval",
+    "bankAccountApproval",
+  ],
+  Verify: [],
+};
 export const SendRequest = () => {
   const [activeStep, setActiveStep] = useSessionStorage(
     "sendRequest_activeStep",
@@ -51,29 +74,29 @@ export const SendRequest = () => {
   const completedSteps = () => Object.keys(completed).length;
   const isLastStep = () => activeStep === totalSteps() - 1;
   const allStepsCompleted = () => completedSteps() === totalSteps();
-const updateCompleted = () => {
-  const componentName = components[activeStep];
-  const form = getSessionStorageValue(componentName);
-  const requiredFields = REQUIRED_FIELDS[componentName] || [];
+  const updateCompleted = () => {
+    const componentName = components[activeStep];
+    const form = getSessionStorageValue(componentName);
+    const requiredFields = REQUIRED_FIELDS[componentName] || [];
 
-  if (!form) {
-    setCompleted({ ...completed, [activeStep]: false });
-    return;
-  }
+    if (!form) {
+      setCompleted({ ...completed, [activeStep]: false });
+      return;
+    }
 
-  // בדיקה האם כל השדה שנדרש קיים ומלא
-  const allFilled = requiredFields.every((key) => {
-    const value = form[key];
-    return (
-      value !== "" &&
-      value !== null &&
-      value !== undefined &&
-      !(Array.isArray(value) && value.length === 0)
-    );
-  });
+    // בדיקה האם כל השדה שנדרש קיים ומלא
+    const allFilled = requiredFields.every((key) => {
+      const value = form[key];
+      return (
+        value !== "" &&
+        value !== null &&
+        value !== undefined &&
+        !(Array.isArray(value) && value.length === 0)
+      );
+    });
 
-  setCompleted((prev) => ({ ...prev, [activeStep]: allFilled }));
-};
+    setCompleted((prev) => ({ ...prev, [activeStep]: allFilled }));
+  };
 
   const handleNext = () => {
     const newActiveStep =
@@ -110,7 +133,7 @@ const updateCompleted = () => {
     setActiveStep(next);
     navigate(`/SendRequest/${components[next]}`);
   };
-  const saveDraft = async () => {
+ const saveDraft = async () => {
     try {
       const personalDetails = getSessionStorageValue("PersonalForm");
       const familyDetails = getSessionStorageValue("FamilyForm");
@@ -119,29 +142,26 @@ const updateCompleted = () => {
       const fileUploads = getSessionStorageValue("FileUploadForm");
       const token = Cookies.get("token");
 
-      // יצירת FormData לשליחת קבצים
-      const formData = new FormData();
-      formData.append("personalDetails", JSON.stringify(personalDetails));
-      formData.append("familyDetails", JSON.stringify(familyDetails));
-      formData.append("courseDetails", JSON.stringify(courseDetails));
-      formData.append("bankDetails", JSON.stringify(bankDetails));
-      formData.append("isVerified", false);
+      // יצירת אובייקט JSON פשוט (ללא FormData)
+      const payload = {
+        personalDetails,
+        familyDetails,
+        courseDetails,
+        bankDetails,
+        fileUploads, // שולח אובייקט המכיל את הנתיבים היחסיים שכבר התקבלו
+        isVerified: false
+      };
 
-      // הוספת קבצים ל-FormData
-      Object.keys(fileUploads || {}).forEach((key) => {
-        if (fileUploads[key] && fileUploads[key].fileData) {
-          // שליחת הנתונים כ-Base64 או כ-Blob
-          formData.append(`files_${key}`, fileUploads[key].fileData);
-          formData.append(`fileNames_${key}`, fileUploads[key].fileName);
-        }
-      });
-
-      const response = await axios.post("http://localhost:5000/api/requests/", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        "http://localhost:5000/api/requests/",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json", // שינוי ל-JSON
+          },
         },
-      });
+      );
 
       if (response.data.success) {
         Swal.fire({
@@ -158,6 +178,7 @@ const updateCompleted = () => {
       });
     }
   };
+    
 
   React.useEffect(() => {}, [completed, navigate]);
 
@@ -203,6 +224,7 @@ const updateCompleted = () => {
             activeStep={activeStep}
             alternativeLabel
             sx={{
+              direction: "rtl",
               "& .MuiStepLabel-label": {
                 fontWeight: 500,
                 color: "#2e3b78",
@@ -224,7 +246,18 @@ const updateCompleted = () => {
               "& .MuiStepIcon-root.Mui-completed": {
                 color: "#e0672b",
               },
-              dir: "rtl",
+              // --- תיקון הקווים המחברים ב-RTL ---
+              "& .MuiStepConnector-root": {
+                left: "calc(50% + 20px)",
+                right: "calc(-50% + 20px)",
+              },
+              "& .MuiStepConnector-line": {
+                borderTopWidth: "1px",
+                display: "block",
+              },
+              "& .MuiStep-root:first-child .MuiStepConnector-root": {
+                display: "none", // מסתיר את הקו המיותר מימין לשלב 1
+              },
             }}
           >
             {steps.map((label, index) => (
@@ -264,13 +297,13 @@ const updateCompleted = () => {
             </Button>
 
             <Box sx={{ flex: "1 1 auto" }} />
-              <Button
-          variant="text"
-          sx={{ color: "#1f2d5c", fontWeight: 600, mx: 2 }}
-          onClick={saveDraft}
-        >
-          שמור כטיוטה
-        </Button>
+            <Button
+              variant="text"
+              sx={{ color: "#1f2d5c", fontWeight: 600, mx: 2 }}
+              onClick={saveDraft}
+            >
+              שמור כטיוטה
+            </Button>
 
             <Button
               variant="contained"
