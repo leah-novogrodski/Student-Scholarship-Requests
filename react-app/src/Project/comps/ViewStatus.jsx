@@ -44,8 +44,8 @@ export const ViewStatus = () => {
 
     fetchStatus();
   }, [token]);
-  console.log(requestDetails, "requestDetails");
-  if (requestDetails.status!=="draft") {
+ 
+  if (requestDetails) {
     return (
       <>
         <Box
@@ -75,7 +75,7 @@ export const ViewStatus = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Typography fontWeight={600}>מספר בקשה:</Typography>
-                  <Typography>"REQ - 00{requestDetails.__v+1}"</Typography>
+                  <Typography>REQ - 00{requestDetails.__v+1}</Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
