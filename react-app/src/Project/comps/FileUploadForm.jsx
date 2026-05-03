@@ -15,6 +15,10 @@ import useSessionStorage, {
 } from "../redux/useSessionStorage";
 import { useDispatch } from "react-redux";
 import { setCurrentRequest } from "../redux/RequestSlice";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+axios.defaults.withCredentials = true;
 
 const FILE_REQUIREMENTS = [
   {
@@ -79,35 +83,18 @@ export const FileUploadForm = () => {
   const [errors, setErrors] = useState({});
 
   // פונקציה להמרת קובץ ל-Base64
-  const fileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
-  const handleFileSelect = (fileId) => async (e) => {
+const handleFileSelect = (fileId) => async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // בדיקת סוג הקובץ
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
-      setErrors((prev) => ({
-        ...prev,
-        [fileId]: "רק קבצי PDF, JPG ו-PNG מותרים",
-      }));
+      setErrors((prev) => ({ ...prev, [fileId]: "רק קבצי PDF, JPG ו-PNG מותרים" }));
       return;
     }
 
-    // בדיקת גודל הקובץ (עד 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setErrors((prev) => ({
-        ...prev,
-        [fileId]: "גודל הקובץ לא יכול להיות יותר מ-10MB",
-      }));
+      setErrors((prev) => ({ ...prev, [fileId]: "גודל הקובץ לא יכול להיות יותר מ-10MB" }));
       return;
     }
 
@@ -115,38 +102,43 @@ export const FileUploadForm = () => {
     setUploadProgress((prev) => ({ ...prev, [fileId]: 0 }));
 
     try {
-      // סימולציה של העלאה
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setUploadProgress((prev) => ({ ...prev, [fileId]: i }));
+      const formData = new FormData();
+      formData.append(fileId, file); // שם השדה יהיה ה-ID של הקובץ
+
+      // העלאה אמיתית לשרת בזמן בחירת הקובץ
+      const response = await axios.post(
+        "http://localhost:5000/api/requests/upload-single",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress((prev) => ({ ...prev, [fileId]: percentCompleted }));
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setFileUploads((prev) => ({
+          ...prev,
+          [fileId]: {
+            fileName: file.name,
+            path: response.data.path, // שמירת הנתיב היחסי מהשרת לאחסון המקומי
+          },
+        }));
+        setErrors((prev) => ({ ...prev, [fileId]: undefined }));
       }
-
-      // המרת הקובץ ל-Base64 ושמירה
-      const base64Data = await fileToBase64(file);
-      setFileUploads((prev) => ({
-        ...prev,
-        [fileId]: {
-          fileName: file.name,
-          fileType: file.type,
-          fileData: base64Data, // הנתונים בפורמט Base64
-        },
-      }));
-
-      setErrors((prev) => ({
-        ...prev,
-        [fileId]: undefined,
-      }));
     } catch (error) {
-      setErrors((prev) => ({
-        ...prev,
-        [fileId]: "שגיאה בהעלאת הקובץ",
-      }));
+      setErrors((prev) => ({ ...prev, [fileId]: "שגיאה בהעלאת הקובץ" }));
     } finally {
       setUploading(false);
-      setUploadProgress((prev) => ({ ...prev, [fileId]: 0 }));
+      // משאירים את ההתקדמות על 100 לזמן קצר כדי לתת פידבק ויזואלי לפני היעלמות
+      setTimeout(() => setUploadProgress((prev) => ({ ...prev, [fileId]: 0 })), 1000);
     }
   };
-
   const removeFile = (fileId) => {
     setFileUploads((prev) => ({
       ...prev,

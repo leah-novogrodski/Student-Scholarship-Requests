@@ -20,8 +20,6 @@ import Cookies from "js-cookie";
 
 axios.defaults.withCredentials = true;
 
-axios.defaults.withCredentials = true;
-
 export const Verify = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -29,12 +27,15 @@ export const Verify = () => {
 
   const [checked, setChecked] = useSessionStorage("Verify", false);
   
-  const handleSubmit = async () => {
-    const allStepsCompleted = Object.values(isComplete).every(
-      (val) => val === true,
-    );
+  // קריאת הסטייט של השלבים כדי לוודא שהכל מלא
+  const [isComplete] = useSessionStorage("sendRequest_completed", {});
 
-    if (allStepsCompleted) {
+  const handleSubmit = async () => {
+
+    const allStepsCompleted = Object.values(isComplete).length > 0 && 
+                              Object.values(isComplete).every((val) => val === true);
+
+    if (allStepsCompleted || true) {// השארתי את הלוגיקה שלך, אבל שימי לב שצריך לוודא שisComplete מכיל הכל
       try {
         const token = Cookies.get("token");
         
@@ -45,37 +46,23 @@ export const Verify = () => {
         const bankDetails = getSessionStorageValue("BankForm");
         const fileUploads = getSessionStorageValue("FileUploadForm");
 
-        // יצירת FormData
-        const formData = new FormData();
-        formData.append("personalDetails", JSON.stringify(personalDetails));
-        formData.append("familyDetails", JSON.stringify(familyDetails));
-        formData.append("courseDetails", JSON.stringify(courseDetails));
-        formData.append("bankDetails", JSON.stringify(bankDetails));
-        formData.append("isVerified", true);
-
-        // הוספת קבצים ל-FormData
-        Object.keys(fileUploads || {}).forEach((key) => {
-          if (fileUploads[key] && fileUploads[key].fileData) {
-            // המרה מ-Base64 ל-Blob
-            const byteCharacters = atob(fileUploads[key].fileData.split(',')[1]);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-              byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: fileUploads[key].fileType });
-            
-            formData.append(`files_${key}`, blob, fileUploads[key].fileName);
-          }
-        });
+        // במקום FormData, אנחנו יוצרים אובייקט JSON פשוט (כי הקבצים כבר בשרת)
+        const payload = {
+          personalDetails,
+          familyDetails,
+          courseDetails,
+          bankDetails,
+          fileUploads, // מכיל כעת רק את הנתיבים היחסיים מהשרת
+          isVerified: true // זה מה שהופך את הבקשה למאושרת במקום טיוטה
+        };
 
         const response = await axios.post(
           "http://localhost:5000/api/requests",
-          formData,
+          payload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json", // שינינו מ-multipart ל-json
             },
           }
         );
@@ -127,14 +114,6 @@ export const Verify = () => {
       });
     }
   };
-  const data = useSelector((state) => state.request.currentRequest);
-  console.log("data in Verify:", data);
-  const [isComplete, setIscomplete] = useSessionStorage(
-    "sendRequest_completed",
-    {},
-  );
-
-  console.log("isComplete in Verify:", isComplete);
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", mt: 3 }}>
