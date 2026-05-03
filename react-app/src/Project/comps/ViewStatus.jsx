@@ -12,12 +12,13 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import Cookies from "js-cookie";
 import axios from "axios";
+import useSessionStorage from "../redux/useSessionStorage";
 
 export const ViewStatus = () => {
   const users = useSelector((state) => state.user);
   const requests = useSelector((state) => state.request);
   console.log(requests, "requests");
-  const [requestDetails, setRequestDetails] = useState(null);
+  const [requestDetails, setRequestDetails] = useSessionStorage("requestDetails", null);
   const [loading, setLoading] = useState(true);
   const token = Cookies.get("token");
   useEffect(() => {
@@ -43,15 +44,21 @@ export const ViewStatus = () => {
 
     fetchStatus();
   }, [token]);
-  if (requestDetails) {
+  console.log(requestDetails, "requestDetails");
+  if (requestDetails.status!=="draft") {
     return (
       <>
         <Box
           sx={{
-            maxWidth: 750,
+            maxWidth: 1000,
             mx: "auto",
             mt: 6,
             p: 2,
+            textAlign: "center",
+            // רווח בין החלקים השונים של הטופס
+              gap: 10,
+              display: "flex",
+    flexDirection: "column"
           }}
         >
           <Typography variant="h4" fontWeight={600} textAlign="center" mb={3}>
@@ -68,39 +75,35 @@ export const ViewStatus = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Typography fontWeight={600}>מספר בקשה:</Typography>
-                  <Typography>{requestDetails.id}</Typography>
+                  <Typography>"REQ - 00{requestDetails.__v+1}"</Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <Typography fontWeight={600}>שם מבקש/ת:</Typography>
-                  <Typography>{requestDetails.personalDetails.name}</Typography>
+                  <Typography>{requestDetails.personalDetails.firstName} {requestDetails.personalDetails.lastName}</Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <Typography fontWeight={600}>תאריך הגשה:</Typography>
-                  <Typography>{requestDetails.date}</Typography>
+                  <Typography>{new Date(requestDetails.updatedAt).toLocaleDateString("he-IL")}</Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                  <Typography fontWeight={600}>עדכון אחרון:</Typography>
-                  <Typography>{requestDetails.lastUpdated}</Typography>
+                  <Typography fontWeight={600}>תאריך פתיחת הבקשה:</Typography>
+                  <Typography>{new Date(requestDetails.createdAt).toLocaleDateString("he-IL")}</Typography>
                 </Grid>
 
                 <Grid item xs={12}>
                   <Typography fontWeight={600}>סטטוס:</Typography>
                   <Chip
-                    label={requestDetails.status}
+                    label={requestDetails.status=="pending" ? "בהמתנה" : requestDetails.status === "approved" ? "מאושרת" : "נדחתה"}
                     color="primary"
                     variant="outlined"
                     sx={{ mt: 1 }}
                   />
                 </Grid>
 
-                <Grid item xs={12}>
-                  <Typography fontWeight={600}>הערות:</Typography>
-                  <Typography>{requestDetails.notes}</Typography>
-                </Grid>
-              </Grid>
+          </Grid>
 
               <Divider sx={{ my: 3 }} />
             </CardContent>
