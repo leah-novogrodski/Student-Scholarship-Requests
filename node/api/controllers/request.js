@@ -11,32 +11,38 @@ const isObjectComplete = (obj) => {
     value.toString().trim() !== ""
   );
 };
-
+export const uploadSingleFile = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: "לא הועלה קובץ" });
+    }
+    
+    const file = req.files[0];
+    const userId = req.user.id;
+    
+    // יצירת נתיב יחסי שיישמר בסטורג' ובמסד הנתונים
+    const relativePath = `/uploads/${userId}/${file.filename}`;
+    
+    res.status(200).json({ 
+      success: true, 
+      path: relativePath, 
+      fileName: file.originalname 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "שגיאה בהעלאת הקובץ", error: error.message });
+  }
+};
 export const createRequest = async (req, res) => {
   try {
-    const personalDetails = JSON.parse(req.body.personalDetails || '{}');
-    const familyDetails = JSON.parse(req.body.familyDetails || '{}');
-    const courseDetails = JSON.parse(req.body.courseDetails || '{}');
-    const bankDetails = JSON.parse(req.body.bankDetails || '{}');
-    const { isVerified } = req.body;
+    // קבלת הנתונים כ-JSON נקי (אין יותר FormData בקשה זו)
+    const { personalDetails, familyDetails, courseDetails, bankDetails, fileUploads, isVerified } = req.body;
 
-    // טיפול בקבצים שהועלו
-    const fileUploads = {};
-    const fileMapping = {
-      'idCopy': 'files_idCopy',
-      'studentAppendix': 'files_studentAppendix',
-      'fatherAppendix': 'files_fatherAppendix',
-      'motherAppendix': 'files_motherAppendix',
-      'studyApproval': 'files_studyApproval',
-      'bankAccountApproval': 'files_bankAccountApproval'
-    };
-
-    // קריאה לקבצים מ-req.files (multer)
-    if (req.files) {
-      Object.keys(fileMapping).forEach(fileKey => {
-        const multerField = fileMapping[fileKey];
-        if (req.files[multerField] && req.files[multerField][0]) {
-          fileUploads[fileKey] = req.files[multerField][0].path;
+    // חילוץ הנתיבים בלבד עבור מסד הנתונים (תואם ל-Schema שהגדרת)
+    const formattedFileUploads = {};
+    if (fileUploads) {
+      Object.keys(fileUploads).forEach(key => {
+        if (fileUploads[key] && fileUploads[key].path) {
+          formattedFileUploads[key] = fileUploads[key].path;
         }
       });
     }
@@ -47,7 +53,7 @@ export const createRequest = async (req, res) => {
         !isObjectComplete(familyDetails) ||
         !isObjectComplete(courseDetails) ||
         !isObjectComplete(bankDetails) ||
-        Object.keys(fileUploads).length === 0;
+        Object.keys(formattedFileUploads).length === 0;
 
       if (isDataMissing) {
         return res.status(400).json({
@@ -58,11 +64,12 @@ export const createRequest = async (req, res) => {
     }
 
     const userIdFromToken = req.user.id;
-
     const user = await User.findOne({ id: userIdFromToken });
     if (!user) {
       return res.status(404).json({ message: "משתמש לא נמצא במערכת" });
     }
+
+ 
 
     // עדכון או יצירה (Upsert)
     const updatedRequest = await Request.findOneAndUpdate(
@@ -73,35 +80,23 @@ export const createRequest = async (req, res) => {
         familyDetails,
         courseDetails,
         bankDetails,
-        fileUploads,
+        fileUploads: formattedFileUploads, // נשמרים רק הנתיבים
         isVerified,
         status: isVerified ? 'submitted' : 'draft',
         submissionDate: isVerified ? new Date() : null,
       },
-      {
-        new: true,
-        upsert: true,
-        runValidators: true,
-      }
+      { new: true, upsert: true, runValidators: true }
     );
 
     res.status(200).json({
       success: true,
-      message: isVerified
-        ? "הבקשה הוגשה בהצלחה!"
-        : "הטיוטה נשמרה בהצלחה!",
+      message: isVerified ? "הבקשה הוגשה בהצלחה!" : "הטיוטה נשמרה בהצלחה!",
       data: updatedRequest,
     });
   } catch (error) {
-    console.error("Error saving request:", error);
-    res.status(500).json({
-      success: false,
-      message: "שגיאה בתהליך השמירה",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "שגיאה בתהליך השמירה", error: error.message });
   }
 };
-
 // הוספת הפונקציה לקובץ controllers/request.js
 
 export const getMyRequest = async (req, res) => {

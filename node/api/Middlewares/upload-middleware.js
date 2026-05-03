@@ -6,28 +6,33 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// יצירת תיקיית uploads אם היא לא קיימת
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// תיקיית האב של כל ההעלאות
+const uploadsDirBase = path.join(__dirname, '../../uploads');
 
-// הגדרת storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadsDir);
+    // משיכת מזהה המשתמש מהטוקן שיורט ב-auth middleware
+    const userId = req.user?.id || 'unknown'; 
+    const userDir = path.join(uploadsDirBase, String(userId));
+    
+    // יצירת תיקייה למשתמש אם לא קיימת
+    if (!fs.existsSync(userDir)) {
+      fs.mkdirSync(userDir, { recursive: true });
+    }
+    cb(null, userDir);
   },
   filename: (req, file, cb) => {
-    // יצירת שם קובץ ייחודי
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    // שימוש בשם השדה באנגלית (כמו idCopy, studyApproval וכו')
+    const fieldName = file.fieldname;
+    const ext = path.extname(file.originalname);
+    
+    // שמירת הקובץ: שם השדה + חותמת זמן למניעת כפילויות + סיומת
+    cb(null, `${fieldName}-${Date.now()}${ext}`);
   }
 });
 
-// פילטר של סוגי קבצים
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-  
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -35,21 +40,11 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// הגדרות multer
 export const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
-  },
+  limits: { fileSize: 10 * 1024 * 1024 }, // מגבלה של 10MB
   fileFilter: fileFilter
 });
 
-// Middleware להעלאת קבצים רבים
-export const uploadMultiple = upload.fields([
-  { name: 'files_idCopy', maxCount: 1 },
-  { name: 'files_studentAppendix', maxCount: 1 },
-  { name: 'files_fatherAppendix', maxCount: 1 },
-  { name: 'files_motherAppendix', maxCount: 1 },
-  { name: 'files_studyApproval', maxCount: 1 },
-  { name: 'files_bankAccountApproval', maxCount: 1 }
-]);
+// מידלוואר לקבלת קובץ בודד עם שם שדה דינמי
+export const uploadSingleFileMiddleware = upload.any();
